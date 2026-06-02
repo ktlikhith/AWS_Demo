@@ -1,28 +1,68 @@
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
+import { API_URL } from './api';
 
-import React,{useEffect,useState} from 'react';
-import {API_URL} from './config';
+function App() {
 
-function App(){
- const [books,setBooks]=useState([]);
+  const [books, setBooks] = useState([]);
+  const [title, setTitle] = useState('');
+  const [author, setAuthor] = useState('');
 
- useEffect(()=>{
-  fetch(`${API_URL}/books`)
-   .then(r=>r.json())
-   .then(setBooks);
- },[]);
+  const loadBooks = async () => {
+    const res = await axios.get(API_URL);
+    setBooks(res.data);
+  };
 
- return (
-  <div style={{padding:'20px'}}>
-   <h1>AWS Online Book Store</h1>
-   {books.map(book=>(
-    <div key={book.id}>
-      <h3>{book.title}</h3>
-      <p>{book.author}</p>
-      <p>₹{book.price}</p>
+  useEffect(() => {
+    loadBooks();
+  }, []);
+
+  const addBook = async () => {
+
+    await axios.post(
+      API_URL,
+      {
+        title,
+        author
+      }
+    );
+
+    loadBooks();
+  };
+
+  return (
+    <div style={{ padding: '20px' }}>
+
+      <h1>Book Store</h1>
+
+      <input
+        placeholder="Title"
+        onChange={(e) => setTitle(e.target.value)}
+      />
+
+      <input
+        placeholder="Author"
+        onChange={(e) => setAuthor(e.target.value)}
+      />
+
+      <button onClick={addBook}>
+        Add Book
+      </button>
+
+      <ul>
+
+        {
+          books.map(book => (
+            <li key={book.id}>
+              {book.title} - {book.author}
+            </li>
+          ))
+        }
+
+      </ul>
+
     </div>
-   ))}
-  </div>
- );
+  );
 }
 
 export default App;
